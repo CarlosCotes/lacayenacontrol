@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,9 +20,13 @@ Route::middleware('auth')->group(function () {
 });
 // ADMINISTRADOR
 Route::middleware(['auth', 'role:1'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.index');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/create', [AdminController::class, 'create'])->name('admin.create');
+    Route::post('/admin', [AdminController::class, 'store'])->name('admin.store');
+    Route::get('/admin/{id}/edit', [AdminController::class, 'edit'])->name('admin.edit');
+    Route::put('/admin/{id}', [AdminController::class, 'update'])->name('admin.update');
+    Route::delete('/admin/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
+
 });
 
 // SUPERVISOR
@@ -28,6 +34,7 @@ Route::middleware(['auth', 'role:2'])->group(function () {
     Route::get('/supervisor/dashboard', function () {
         return view('supervisor.index');
     })->name('supervisor.dashboard');
+    Route::get('/supervisor/reportes', [SupervisorController::class, 'reportes'])->name('supervisor.reportes');
 });
 
 // FUNCIONARIO
@@ -42,6 +49,7 @@ Route::middleware(['auth', 'role:4'])->group(function () {
     Route::get('/vigilante/dashboard', function () {
         return view('vigilante.index');
     })->name('vigilante.dashboard');
+    Route::post('/vigilante/accesos', [AccesoController::class, 'registrar'])->name('accesos.registrar');
 });
 
 Route::get('/acceso-denegado', function () {
