@@ -3,7 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-
+use App\Http\Controllers\SupervisorController;
+use App\Http\Controllers\VigilanteController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,11 +46,22 @@ Route::middleware(['auth', 'role:3'])->group(function () {
 });
 
 // VIGILANTE
-Route::middleware(['auth', 'role:4'])->group(function () {
-    Route::get('/vigilante/dashboard', function () {
-        return view('vigilante.index');
-    })->name('vigilante.dashboard');
-    Route::post('/vigilante/accesos', [AccesoController::class, 'registrar'])->name('accesos.registrar');
+Route::middleware(['auth', 'role:5'])->group(function () {
+    
+    // Panel principal
+    Route::get('/vigilante/dashboard', [VigilanteController::class, 'index'])->name('vigilante.dashboard');
+
+    // Registrar entrada
+
+    Route::get('/vigilante/entradas', [VigilanteController::class, 'showEntradaForm'])->name('vigilante.entradas');
+    Route::post('/vigilante/entradas', [VigilanteController::class, 'storeEntrada'])->name('vigilante.storeEntrada');
+
+    Route::get('/vigilante/salidas', [VigilanteController::class, 'showSalidaForm'])->name('vigilante.salidas');
+    Route::post('/vigilante/salidas', [VigilanteController::class, 'storeSalida'])->name('vigilante.storeSalida');
+
+    Route::get('/vigilante/historial', [VigilanteController::class, 'historial'])->name('vigilante.historial');
+    Route::get('/vigilante/reportes', [VigilanteController::class, 'reportes'])->name('vigilante.reportes');
+    Route::get('/vigilante/generar-reportes', [VigilanteController::class, 'generarReportes'])->name('vigilante.generarReportes');
 });
 
 Route::get('/acceso-denegado', function () {

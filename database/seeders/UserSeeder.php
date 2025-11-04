@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\User; 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -14,34 +15,59 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Carlos Cotes',
-            'email' => 'admin@local.test',
-            'password' => Hash::make('123456'),
-            'role_id' => 1,
-        ]);
 
-        User::create([
-            'name' => 'Supervisor Prueba',
-            'email' => 'supervisor@local.test',
-            'password' => Hash::make('123456'),
-            'role_id' => 2,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@local.test'],
+            [
+                'name' => 'Carlos Cotes',
+                'documento' => '100000001',
+                'password' => Hash::make('123456'),
+                'role_id' => Role::where('nombre', 'Administrador')->first()->id,
+            ]
+        );
 
-        // FUNCIONARIO
-        User::create([
-            'name' => 'Funcionario Ejemplo',
-            'email' => 'funcionario@email.com',
-            'password' => Hash::make('12345678'),
-            'role_id' => 3,
-        ]);
+        // SUPERVISOR
+        User::updateOrCreate(
+            ['email' => 'supervisor@local.test'],
+            [
+                'name' => 'María Gómez',
+                'documento' => '100000002',
+                'password' => Hash::make('123456'),
+                'role_id' => Role::where('nombre', 'Supervisor')->first()->id,
+            ]
+        );
+
+        // FUNCIONARIO (GERENTE DE EMPRESA)
+        User::updateOrCreate(
+            ['email' => 'funcionario@local.test'],
+            [
+                'name' => 'Javier Torres',
+                'documento' => '100000003',
+                'password' => Hash::make('123456'),
+                'role_id' => Role::where('nombre', 'Funcionario')->first()->id,
+            ]
+        );
+
+        // EMPLEADO (TRABAJADOR)
+        User::updateOrCreate(
+            ['email' => 'empleado@local.test'],
+            [
+                'name' => 'Laura Ruiz',
+                'documento' => '100000004',
+                'password' => Hash::make('123456'),
+                'role_id' => Role::where('nombre', 'Empleado')->first()->id,
+            ]
+        );
 
         // VIGILANTE
-        User::create([
-            'name' => 'Vigilante Puerta',
-            'email' => 'vigilante@email.com',
-            'password' => Hash::make('12345678'),
-            'role_id' => 4,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'vigilante@local.test'],
+            [
+                'name' => 'Pedro Díaz',
+                'documento' => '100000005',
+                'password' => Hash::make('123456'),
+                'role_id' => Role::where('nombre', 'Vigilante')->first()->id,
+            ]
+        );
     }
 }

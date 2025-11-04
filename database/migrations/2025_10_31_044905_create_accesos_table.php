@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('accesos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // usuario que entra o sale
+            $table->foreignId('vigilante_id')->constrained('users')->onDelete('cascade'); // vigilante que registra
             $table->timestamp('hora_entrada')->nullable();
             $table->timestamp('hora_salida')->nullable();
-            $table->string('tipo')->comment('Entrada o Salida');
+            $table->enum('tipo', ['entrada', 'salida']);
             $table->timestamps();
         });
     }

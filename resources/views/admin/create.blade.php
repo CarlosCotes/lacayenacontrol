@@ -44,13 +44,12 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="role_id" class="block font-semibold mb-1">Rol</label>
-                        <select name="role_id" id="role_id" class="w-full border-gray-300 rounded p-2" required>
-                            <option value="">Selecciona un rol</option>
-                            <option value="1">Administrador</option>
-                            <option value="2">Supervisor</option>
-                            <option value="3">Funcionario</option>
-                            <option value="4">Vigilante</option>
+                        <label class="block mb-1">Rol</label>
+                        <select name="role_id" class="w-full border p-2 rounded" required>
+                            <option value="">-- Seleccione un rol --</option>
+                            @foreach ($roles as $rol)
+                                <option value="{{ $rol->id }}">{{ $rol->nombre }}</option>
+                            @endforeach
                         </select>
                     </div>
 

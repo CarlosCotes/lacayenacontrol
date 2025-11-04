@@ -13,19 +13,17 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, $role)
     {
-        // Verificar si el usuario está autenticado
+        // Verifica si el usuario está autenticado
         if (!auth()->check()) {
-            return redirect('/login')->with('error', 'Debes iniciar sesión.');
+            return redirect()->route('login');
         }
 
-        // Obtener el usuario actual
-        $user = auth()->user();
-
-        // Comparar el rol (por número)
-        if ($user->role_id != $role) {
-            return response()->view('errors.acceso-denegado', [], 403);
+        // Compara el role_id
+        if (auth()->user()->role_id != $role) {
+            return redirect()->route('login')->with('error', 'No tienes permiso para acceder a esta sección.');
         }
 
         return $next($request);
     }
-}
+    }
+

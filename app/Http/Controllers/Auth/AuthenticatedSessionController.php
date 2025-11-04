@@ -36,7 +36,7 @@ class AuthenticatedSessionController extends Controller
                 return redirect()->route('supervisor.dashboard');
             case 3:
                 return redirect()->route('funcionario.dashboard');
-            case 4:
+            case 5:
                 return redirect()->route('vigilante.dashboard');
             default:
                 Auth::logout();
