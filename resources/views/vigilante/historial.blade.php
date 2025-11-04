@@ -6,36 +6,41 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow-sm sm:rounded-lg p-6">
+
+                <table class="min-w-full border border-gray-300">
+                    <thead class="bg-gray-100">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora Entrada</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora Salida</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                            <th class="py-2 px-4 border">Usuario</th>
+                            <th class="py-2 px-4 border">Vigilante</th>
+                            <th class="py-2 px-4 border">Tipo</th>
+                            <th class="py-2 px-4 border">Hora Entrada</th>
+                            <th class="py-2 px-4 border">Hora Salida</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody>
                         @forelse($accesos as $acceso)
-                            <tr>
-                                <td class="px-6 py-4">{{ $acceso->user->name }}</td>
-                                <td class="px-6 py-4">{{ $acceso->hora_entrada }}</td>
-                                <td class="px-6 py-4">{{ $acceso->hora_salida }}</td>
-                                <td class="px-6 py-4">{{ $acceso->tipo }}</td>
+                            <tr class="text-center">
+                                <td class="py-2 px-4 border">{{ $acceso->user->name ?? 'N/A' }}</td>
+                                <td class="py-2 px-4 border">{{ $acceso->vigilante->name ?? 'N/A' }}</td>
+                                <td class="py-2 px-4 border">{{ ucfirst($acceso->tipo) }}</td>
+                                <td class="py-2 px-4 border">{{ $acceso->hora_entrada }}</td>
+                                <td class="py-2 px-4 border">{{ $acceso->hora_salida ?? '—' }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay registros.</td>
+                                <td colspan="5" class="py-4 text-center text-gray-600">No hay registros</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-            <a href="{{ route('vigilante.dashboard') }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mb-3">
+
+                <a href="{{ route('vigilante.dashboard') }}" class="inline-block mt-4 text-blue-600 hover:underline">
                     ← Volver al inicio
                 </a>
+
+            </div>
         </div>
     </div>
 </x-app-layout>

@@ -19,6 +19,9 @@ class DatabaseSeeder extends Seeder
             RolesSeeder::class,
             UserSeeder::class,
             AccesoSeeder::class,
+            VehiculoSeeder::class,
+            VehiculoAccesoSeeder::class,
+            
         ]);
     }
 }

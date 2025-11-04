@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SupervisorController;
 use App\Http\Controllers\VigilanteController;
+use App\Http\Controllers\VehiculoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -62,6 +63,12 @@ Route::middleware(['auth', 'role:5'])->group(function () {
     Route::get('/vigilante/historial', [VigilanteController::class, 'historial'])->name('vigilante.historial');
     Route::get('/vigilante/reportes', [VigilanteController::class, 'reportes'])->name('vigilante.reportes');
     Route::get('/vigilante/generar-reportes', [VigilanteController::class, 'generarReportes'])->name('vigilante.generarReportes');
+
+    Route::get('entrada', [VehiculoController::class, 'index'])->name('vehiculos.entrada');
+    Route::post('entrada', [VehiculoController::class, 'storeAcceso'])->name('vehiculos.storeAcceso');
+    Route::get('historial', [VehiculoController::class, 'historial'])->name('vehiculos.historial');
+    Route::get('reportes', [VehiculoController::class, 'reportes'])->name('vehiculos.reportes');
+
 });
 
 Route::get('/acceso-denegado', function () {

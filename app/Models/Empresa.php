@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Empresa extends Model
 {
-    //
+    protected $fillable = ['nombre'];
+
+    public function vehiculos()
+    {
+        return $this->morphMany(Vehiculo::class, 'propietario');
+    }
 }

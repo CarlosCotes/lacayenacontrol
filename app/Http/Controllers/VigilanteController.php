@@ -6,18 +6,22 @@ use Illuminate\Http\Request;
 use App\Models\User; 
 use App\Models\Acceso;
 use Illuminate\Support\Facades\Auth;
+
 class VigilanteController extends Controller
 {
+    // Panel del vigilante
     public function index()
     {
         return view('vigilante.index');
     }
 
+    // Formulario para registrar entrada
     public function showEntradaForm()
     {
         return view('vigilante.entradas');
     }
 
+    // Registrar entrada de usuario
     public function storeEntrada(Request $request)
     {
         $request->validate([
@@ -32,84 +36,85 @@ class VigilanteController extends Controller
 
         Acceso::create([
             'user_id' => $usuario->id,
-            'vigilante_id' => Auth::id(), 
+            'vigilante_id' => Auth::id(),
             'hora_entrada' => now(),
             'tipo' => 'entrada',
         ]);
 
         return redirect()->route('vigilante.dashboard')->with('success', 'Entrada registrada correctamente.');
-}
+    }
 
+    // Formulario para registrar salida
     public function showSalidaForm()
     {
         return view('vigilante.salidas');
     }
 
+    // Registrar salida de usuario
     public function storeSalida(Request $request)
     {
-   // Validar que se haya enviado un documento y exista en la tabla users
-   $request->validate([
-    'documento' => 'required|exists:users,documento',
-]);
+        $request->validate([
+            'documento' => 'required|exists:users,documento',
+        ]);
 
-// Buscar el usuario por documento
-$usuario = User::where('documento', $request->documento)->first();
+        $usuario = User::where('documento', $request->documento)->first();
 
-if (!$usuario) {
-    return redirect()->back()->withErrors(['documento' => 'Usuario no encontrado']);
-}
+        if (!$usuario) {
+            return redirect()->back()->withErrors(['documento' => 'Usuario no encontrado']);
+        }
 
-// Buscar la última entrada del usuario que aún no tenga salida
-$ultimoAcceso = Acceso::where('user_id', $usuario->id)
-    ->where('tipo', 'entrada')
-    ->whereNull('hora_salida')
-    ->latest('hora_entrada')
-    ->first();
+        $ultimoAcceso = Acceso::where('user_id', $usuario->id)
+            ->where('tipo', 'entrada')
+            ->whereNull('hora_salida')
+            ->latest('hora_entrada')
+            ->first();
 
-if (!$ultimoAcceso) {
-    return redirect()->back()->withErrors(['documento' => 'No se encontró una entrada pendiente para este usuario.']);
-}
+        if (!$ultimoAcceso) {
+            return redirect()->back()->withErrors(['documento' => 'No se encontró una entrada pendiente para este usuario.']);
+        }
 
-// Actualizar la hora_salida y cambiar el tipo a salida
-$ultimoAcceso->update([
-    'hora_salida' => now(),
-    'tipo' => 'salida',
-    'vigilante_id' => auth()->id(), // Registrar qué vigilante hizo la salida
-]);
+        $ultimoAcceso->update([
+            'hora_salida' => now(),
+            'tipo' => 'salida',
+            'vigilante_id' => Auth::id(),
+        ]);
 
-return redirect()->route('vigilante.dashboard')->with('success', 'Salida registrada correctamente.');
-}
-   
+        return redirect()->route('vigilante.dashboard')->with('success', 'Salida registrada correctamente.');
+    }
 
+    // Historial completo de accesos
     public function historial()
     {
-        $accesos = Acceso::with('user')->orderBy('hora_entrada', 'desc')->get();
+        $accesos = Acceso::with(['user', 'vigilante'])->orderBy('hora_entrada', 'desc')->get();
         return view('vigilante.historial', compact('accesos'));
-        return view('vigilante.historial');
     }
+
+    // Vista de reportes (vacía al inicio)
     public function reportes()
     {       
         $accesos = collect();
-
-        // Retornamos la vista con la variable
         return view('vigilante.reportes', compact('accesos'));
     }
+
+    // Generar reportes filtrados por fecha y/o usuario
     public function generarReportes(Request $request)
     {
-        // Validar fechas
         $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'documento_usuario' => 'nullable|exists:users,documento',
         ]);
-    
-        // Obtener los accesos filtrados
-        $accesos = Acceso::with(['user', 'vigilante'])
+
+        $query = Acceso::with(['user', 'vigilante'])
             ->whereDate('hora_entrada', '>=', $request->fecha_inicio)
-            ->whereDate('hora_entrada', '<=', $request->fecha_fin)
-            ->orderBy('hora_entrada', 'desc')
-            ->get();
-    
-        // Retornar la misma vista de reportes, pero con los datos
+            ->whereDate('hora_entrada', '<=', $request->fecha_fin);
+
+        if ($request->filled('documento_usuario')) {
+            $query->whereHas('user', fn($q) => $q->where('documento', $request->documento_usuario));
+        }
+
+        $accesos = $query->orderBy('hora_entrada', 'desc')->get();
+
         return view('vigilante.reportes', compact('accesos'));
     }
 }
