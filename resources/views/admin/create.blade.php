@@ -22,10 +22,15 @@
                 <form action="{{ route('admin.store') }}" method="POST" class="space-y-4">
                     @csrf
 
-         
                     <div class="mb-4">
                         <label for="name" class="block font-semibold mb-1">Nombre</label>
                         <input type="text" name="name" id="name" class="w-full border-gray-300 rounded p-2" required>
+                    </div>
+
+                    <!-- 🆕 Campo agregado -->
+                    <div class="mb-4">
+                        <label for="documento" class="block font-semibold mb-1">Documento</label>
+                        <input type="text" name="documento" id="documento" class="w-full border-gray-300 rounded p-2" required>
                     </div>
 
                     <div class="mb-4">
@@ -55,7 +60,7 @@
 
                     <div class="flex justify-end space-x-3 pt-4">
                         <a href="{{ route('admin.dashboard') }}" 
-                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow-md transition duration-150">
+                           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow-md transition duration-150">
                             Cancelar
                         </a>
 
