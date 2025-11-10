@@ -2,35 +2,43 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Vehiculo;
 use App\Models\VehiculoAcceso;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 class VehiculoAccesoSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
-    {
-        $vigilante = User::where('role_id', 5)->first(); // Asegúrate que exista un vigilante
+        {
+            $vigilantes = User::whereHas('role', fn($q) => $q->where('nombre', 'Vigilante'))->get();
 
-        $vehiculos = Vehiculo::all();
+            if ($vigilantes->isEmpty()) {
+                dd('⚠️ No hay vigilantes registrados.');
+            }
 
-        foreach ($vehiculos as $vehiculo) {
-            // Generar entre 1 y 3 accesos aleatorios por vehículo
-            $accesos = rand(1, 3);
-            for ($i = 0; $i < $accesos; $i++) {
-                VehiculoAcceso::create([
-                    'vehiculo_id' => $vehiculo->id,
-                    'vigilante_id' => $vigilante->id,
-                    'tipo' => 'entrada',
-                    'hora_entrada' => now()->subDays(rand(0, 10))->addMinutes(rand(0, 59)),
-                    'hora_salida' => now()->subDays(rand(0, 10))->addHours(rand(1, 5)),
-                ]);
+            $vehiculos = Vehiculo::all();
+
+            foreach ($vehiculos as $vehiculo) {
+                $vigilante = $vigilantes->random(); // asignar vigilante aleatorio
+                $numAccesos = rand(1, 3);
+
+                for ($i = 0; $i < $numAccesos; $i++) {
+                    $diasAtras = rand(1, 10);
+                    $horaEntrada = Carbon::now()->subDays($diasAtras)->setTime(rand(6, 22), rand(0, 59));
+                    $horaSalida = (clone $horaEntrada)->addHours(rand(1, 5))->addMinutes(rand(0, 59));
+
+                    VehiculoAcceso::create([
+                        'vehiculo_id' => $vehiculo->id,
+                        'vigilante_id' => $vigilante->id,
+                        'empresa_id' => $vehiculo->empresa_id, // ⚡ importante
+                        'tipo' => 'entrada',
+                        'hora_entrada' => $horaEntrada,
+                        'hora_salida' => $horaSalida,
+                    ]);
+                }
             }
         }
-    }
 }
+

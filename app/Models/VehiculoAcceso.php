@@ -19,4 +19,9 @@ class VehiculoAcceso extends Model
     {
         return $this->belongsTo(User::class, 'vigilante_id');
     }
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class);
+    }
+        
 }

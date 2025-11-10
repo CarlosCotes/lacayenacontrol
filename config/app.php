@@ -1,7 +1,8 @@
 <?php
 
 return [
-
+    
+    'Pdf' => Barryvdh\DomPDF\Facade\Pdf::class, // <- aquí
     /*
     |--------------------------------------------------------------------------
     | Application Name

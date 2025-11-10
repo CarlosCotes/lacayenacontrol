@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Vehiculo;
@@ -8,59 +9,113 @@ use Illuminate\Support\Facades\Auth;
 
 class VehiculoController extends Controller
 {
-    // Formulario de registro de acceso
+    /**
+     * Mostrar formulario de registro de acceso
+     */
     public function index()
     {
-        return view('vigilante.vehiculos.entrada');
+        
+        return view('vehiculos.entrada');
+    }
+    public function salida()
+    {
+        return view('vehiculos.salida');
     }
 
-    // Guardar entrada o salida
+    /**
+     * Registrar entrada o salida del vehículo
+     */
     public function storeAcceso(Request $request)
     {
         $request->validate([
             'placa' => 'required|string|exists:vehiculos,placa',
             'tipo' => 'required|in:entrada,salida',
+            'observacion' => 'nullable|string|max:255',
         ]);
 
         $vehiculo = Vehiculo::where('placa', $request->placa)->first();
 
-        $acceso = new VehiculoAcceso();
-        $acceso->vehiculo_id = $vehiculo->id;
-        $acceso->vigilante_id = Auth::id();
-        $acceso->tipo = $request->tipo;
-        if ($request->tipo === 'entrada') $acceso->hora_entrada = now();
-        if ($request->tipo === 'salida') $acceso->hora_salida = now();
-        $acceso->save();
+        // Verificar si hay una entrada activa sin salida
+        $accesoActivo = VehiculoAcceso::where('vehiculo_id', $vehiculo->id)
+            ->whereNull('hora_salida')
+            ->first();
 
-        return redirect()->back()->with('success', 'Acceso registrado correctamente.');
+        if ($request->tipo === 'entrada' && $accesoActivo) {
+            return back()->with('error', 'El vehículo ya se encuentra dentro.');
+        }
+
+        if ($request->tipo === 'salida' && !$accesoActivo) {
+            return back()->with('error', 'No hay una entrada activa para registrar la salida.');
+        }
+
+        // Crear o actualizar registro
+        if ($request->tipo === 'entrada') {
+        VehiculoAcceso::create([
+            'vehiculo_id' => $vehiculo->id,
+            'vigilante_id' => Auth::id(),
+            'empresa_id' => $vehiculo->empresa_id ?? Auth::user()->empresa_id, // prioridad al vehículo
+            'tipo' => 'entrada',
+            'hora_entrada' => now(),
+            'observacion' => $request->observacion,
+        ]);
+        } else {
+            $accesoActivo->update([
+                'hora_salida' => now(),
+                'tipo' => 'salida',
+                'observacion' => $request->observacion,
+            ]);
+        }
+
+        return back()->with('success', 'Acceso registrado correctamente.');
     }
 
-    // Historial de vehículos
+    /**
+     * Historial de accesos de vehículos
+     */
     public function historial()
     {
-        $accesos = VehiculoAcceso::with('vehiculo', 'vigilante')->orderBy('hora_entrada', 'desc')->get();
-        return view('vigilante.vehiculos.historial', compact('accesos'));
+        $user = Auth::user();
+
+        $query = VehiculoAcceso::with(['vehiculo', 'vigilante', 'empresa']);
+
+        if ($user->role_id == 3) { // Funcionario
+            $query->where('empresa_id', $user->empresa_id);
+        } elseif ($user->role_id == 5) { // Vigilante
+            $query->where('vigilante_id', $user->id);
+        }
+
+        $accesos = $query->orderByDesc('hora_entrada')->get();
+
+        return view('vehiculos.historial', compact('accesos'));
     }
 
-    // Reportes de vehículos
+
+    /**
+     * Reportes de accesos vehiculares
+     */
     public function reportes(Request $request)
     {
-        $query = VehiculoAcceso::with('vehiculo', 'vigilante');
+        $empresaId = Auth::user()->empresa_id ?? null;
+
+        $query = VehiculoAcceso::with(['vehiculo', 'vigilante'])
+            ->when($empresaId, fn($q) => $q->where('empresa_id', $empresaId));
 
         if ($request->filled('placa')) {
-            $query->whereHas('vehiculo', fn($q) => $q->where('placa', $request->placa));
+            $query->whereHas('vehiculo', fn($q) =>
+                $q->where('placa', 'like', '%' . $request->placa . '%')
+            );
         }
 
-        if ($request->filled('fecha_inicio')) {
-            $query->where('hora_entrada', '>=', $request->fecha_inicio . ' 00:00:00');
+        if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
+            $query->whereBetween('hora_entrada', [
+                $request->fecha_inicio . ' 00:00:00',
+                $request->fecha_fin . ' 23:59:59',
+            ]);
         }
 
-        if ($request->filled('fecha_fin')) {
-            $query->where('hora_entrada', '<=', $request->fecha_fin . ' 23:59:59');
-        }
+        $accesos = $query->orderByDesc('hora_entrada')->paginate(15);
 
-        $accesos = $query->orderBy('hora_entrada', 'desc')->get();
-
-        return view('vigilante.vehiculos.reportes', compact('accesos'));
+        // vista general: resources/views/vehiculos/reportes.blade.php
+        return view('vehiculos.reportes', compact('accesos'));
     }
 }

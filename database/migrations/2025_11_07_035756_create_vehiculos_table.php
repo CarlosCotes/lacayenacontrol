@@ -17,8 +17,13 @@ return new class extends Migration
             $table->string('marca')->nullable();
             $table->string('modelo')->nullable();
             $table->string('tipo')->nullable(); // Auto, moto, camión...
-            $table->enum('propietario_tipo', ['persona', 'empresa']);
-            $table->string('propietario_nombre'); // Nombre de la persona o empresa
+            
+            // Relación directa con usuario (propietario)
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            
+            // Si quieres asociar el vehículo a una empresa directamente
+            $table->foreignId('empresa_id')->nullable()->constrained('empresas')->onDelete('cascade');
+            
             $table->timestamps();
         });
     }

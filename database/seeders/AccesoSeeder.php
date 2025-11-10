@@ -11,27 +11,39 @@ class AccesoSeeder extends Seeder
 {
     public function run()
     {
-        $usuarios = User::where('role_id', 1)->pluck('id')->toArray();
-        $vigilantes = User::where('role_id', 5)->pluck('id')->toArray();
+        // ✅ Obtenemos los trabajadores y funcionarios
+        $usuarios = User::whereHas('role', function ($q) {
+            $q->whereIn('nombre', ['Empleado', 'Funcionario']);
+        })->get();
 
-        if(empty($usuarios) || empty($vigilantes)){
-            $this->command->info('No hay usuarios o vigilantes para generar accesos.');
+        // ✅ Obtenemos vigilantes
+        $vigilantes = User::whereHas('role', function ($q) {
+            $q->where('nombre', 'Vigilante');
+        })->get();
+
+        if ($usuarios->isEmpty() || $vigilantes->isEmpty()) {
+            $this->command->info('⚠️ No hay usuarios o vigilantes para generar accesos.');
             return;
         }
 
-        foreach ($usuarios as $userId) {
+        foreach ($usuarios as $usuario) {
+            // Generamos 5 accesos aleatorios por usuario
             for ($i = 0; $i < 5; $i++) {
-                $fechaEntrada = Carbon::now()->subDays(rand(0, 10))->setTime(rand(6, 9), rand(0, 59));
-                $fechaSalida = (clone $fechaEntrada)->addHours(rand(1, 8));
+                $fechaEntrada = Carbon::now()
+                    ->subDays(rand(0, 10))
+                    ->setTime(rand(6, 9), rand(0, 59));
+                
+                $fechaSalida = (clone $fechaEntrada)->addHours(rand(4, 9))->addMinutes(rand(0, 59));
 
                 Acceso::create([
-                    'user_id' => $userId,
-                    'vigilante_id' => $vigilantes[array_rand($vigilantes)],
+                    'user_id' => $usuario->id,
+                    'vigilante_id' => $vigilantes->random()->id,
                     'hora_entrada' => $fechaEntrada,
                     'hora_salida' => $fechaSalida,
                     'tipo' => 'entrada',
                 ]);
             }
         }
+
     }
 }

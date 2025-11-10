@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User; 
 use App\Models\Acceso;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class VigilanteController extends Controller
 {
@@ -25,14 +26,20 @@ class VigilanteController extends Controller
     public function storeEntrada(Request $request)
     {
         $request->validate([
-            'documento' => 'required|exists:users,documento',
+            'documento' => 'required|string',
         ]);
-
+    
         $usuario = User::where('documento', $request->documento)->first();
-
+    
         if (!$usuario) {
-            return redirect()->back()->withErrors(['documento' => 'Usuario no encontrado']);
+            return redirect()->back()->with('error', '❌ Usuario no encontrado.');
         }
+    
+        if ($usuario->estado !== 'activo') {
+            return redirect()->back()->with('error', '⚠️ El usuario está inactivo y no puede registrar entrada.');
+        }
+    
+    
 
         Acceso::create([
             'user_id' => $usuario->id,
@@ -90,31 +97,57 @@ class VigilanteController extends Controller
     }
 
     // Vista de reportes (vacía al inicio)
-    public function reportes()
-    {       
-        $accesos = collect();
-        return view('vigilante.reportes', compact('accesos'));
-    }
-
-    // Generar reportes filtrados por fecha y/o usuario
-    public function generarReportes(Request $request)
+     // 🔹 Mostrar formulario de reportes
+    public function reportes(Request $request)
     {
-        $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'documento_usuario' => 'nullable|exists:users,documento',
-        ]);
+        $vigilanteId = Auth::user()->id; // Vigilante autenticado
 
+        // Relacionar modelo Acceso con el vigilante
         $query = Acceso::with(['user', 'vigilante'])
-            ->whereDate('hora_entrada', '>=', $request->fecha_inicio)
-            ->whereDate('hora_entrada', '<=', $request->fecha_fin);
+            ->where('vigilante_id', $vigilanteId);
 
-        if ($request->filled('documento_usuario')) {
-            $query->whereHas('user', fn($q) => $q->where('documento', $request->documento_usuario));
+        // 🔹 Filtro por documento del usuario
+        if ($request->filled('documento')) {
+            $query->whereHas('user', fn($q) => $q->where('documento', $request->documento));
         }
 
+        // 🔹 Filtro por rango de fechas
+        if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
+            $query->whereBetween('hora_entrada', [$request->fecha_inicio, $request->fecha_fin]);
+        }
+
+        // 🔹 Filtro por tipo (entrada o salida)
+        if ($request->filled('tipo')) {
+            if ($request->tipo === 'entrada') {
+                $query->whereNotNull('hora_entrada');
+            } elseif ($request->tipo === 'salida') {
+                $query->whereNotNull('hora_salida');
+            }
+        }
+
+        // 🔹 Filtro por usuario específico
+        if ($request->filled('empleado_id')) {
+            $query->where('user_id', $request->empleado_id);
+        }
+
+        // Ordenar resultados
         $accesos = $query->orderBy('hora_entrada', 'desc')->get();
 
+        // 🔸 Exportar PDF
+        if ($request->filled('export') && $request->export === 'pdf') {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('vigilante.reportes-pdf', compact('accesos'));
+            return $pdf->download('reporte_accesos_vigilante.pdf');
+        }
+
+        // 🔸 Exportar Excel
+        if ($request->filled('export') && $request->export === 'excel') {
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\AccesosVigilanteExport($accesos),
+                'reporte_accesos_vigilante.xlsx'
+            );
+        }
+
+        // Retornar vista
         return view('vigilante.reportes', compact('accesos'));
     }
 }

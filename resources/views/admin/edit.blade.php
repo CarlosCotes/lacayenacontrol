@@ -36,10 +36,11 @@
                         <label class="block text-gray-700 font-semibold mb-1">Rol</label>
                         <select name="role_id" 
                                 class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="1" {{ $usuario->role_id == 1 ? 'selected' : '' }}>Administrador</option>
+                            <option value="1" {{ $usuario->role_id == 1 ? 'selected' : '' }}>Admin</option>
                             <option value="2" {{ $usuario->role_id == 2 ? 'selected' : '' }}>Supervisor</option>
                             <option value="3" {{ $usuario->role_id == 3 ? 'selected' : '' }}>Funcionario</option>
-                            <option value="4" {{ $usuario->role_id == 4 ? 'selected' : '' }}>Vigilante</option>
+                            <option value="5" {{ $usuario->role_id == 5 ? 'selected' : '' }}>Vigilante</option>
+                            <option value="4" {{ $usuario->role_id == 4 ? 'selected' : '' }}>Empleado</option>
                         </select>
                         @error('role_id')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
