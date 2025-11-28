@@ -62,7 +62,6 @@
                         </select>
                     </div>
 
-                    <!-- 🆕 Campo Empresa -->
                     <div class="mb-4">
                         <label for="empresa_id" class="block font-semibold mb-1">Empresa</label>
                         <select name="empresa_id" id="empresa_id" class="w-full border-gray-300 rounded p-2">
@@ -74,15 +73,27 @@
                     </div>
 
                     <div class="flex justify-end space-x-3 pt-4">
+
+                        <!-- Botón Cancelar (ROJO del panel) -->
                         <a href="{{ route('admin.dashboard') }}" 
-                           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow-md transition duration-150">
+                           class="inline-flex items-center gap-2 bg-gradient-to-br from-rose-300 to-rose-400 
+                                  hover:from-rose-400 hover:to-rose-500 text-white font-semibold px-4 py-2 
+                                  rounded-xl shadow-md transition-all duration-300 transform hover:scale-105 
+                                  hover:shadow-lg active:scale-95"
+                           style="box-shadow: 0 4px 0 rgba(252, 164, 175, 0.4);">
                             Cancelar
                         </a>
 
+                        <!-- Botón Guardar (VERDE estilo de Activar) -->
                         <button type="submit" 
-                            class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded shadow-md transition duration-150">
+                            class="inline-flex items-center gap-2 bg-gradient-to-br from-cyan-300 to-cyan-400 
+                                   hover:from-blue-500 hover:to-blue-600 text-white font-semibold px-5 py-2 
+                                   rounded-xl shadow-md transition-all duration-300 transform hover:scale-105 
+                                   hover:shadow-lg active:scale-95"
+                            style="box-shadow: 0 4px 0 rgba(103, 232, 249, 0.4);">
                             Guardar
                         </button>
+
                     </div>
                 </form>
             </div>

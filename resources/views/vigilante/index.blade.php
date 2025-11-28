@@ -1,108 +1,128 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Panel del Vigilante') }}
-        </h2>
-    </x-slot>
+    <div class="flex min-h-screen bg-gray-50">
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
+        <!-- ===== menu izquierdo ===== -->
+        <aside class="w-64 bg-white shadow-md border-r border-gray-200 p-4 overflow-y-auto">
 
-                {{-- ✅ Mensaje de bienvenida --}}
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-700">
-                        👮 Bienvenido al Panel de Control del Vigilante
-                    </h3>
-                    <p class="text-gray-600">
-                        Desde aquí puedes registrar entradas, salidas y consultar los historiales tanto de personas como de vehículos.
-                    </p>
-                </div>
+            <h2 class="font-bold text-2xl text-gray-800 mb-6">
+                {{ __('Panel del Vigilante') }}
+            </h2>
 
-                {{-- 👤 Accesos de personas --}}
-                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">
-                    👥 Accesos de Personas
-                </h3>
+            {{-- 👥 Accesos de Personas --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                👥 Accesos de Personas
+            </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                    <a href="{{ route('vigilante.entradas') }}" 
-                       class="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">🚪</div>
-                        <div class="font-semibold text-lg">Registrar Entrada</div>
-                    </a>
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('vigilante.entradas') }}"
+                    class="block w-full bg-sky-400 hover:bg-sky-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">🚪</div>
+                    <div class="font-medium text-base">Entrada</div>
+                </a>
 
-                    <a href="{{ route('vigilante.salidas') }}" 
-                       class="bg-red-600 hover:bg-red-700 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">🚶‍♂️</div>
-                        <div class="font-semibold text-lg">Registrar Salida</div>
-                    </a>
-
-                    <a href="{{ route('vigilante.historial') }}" 
-                       class="bg-gray-700 hover:bg-gray-800 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">📜</div>
-                        <div class="font-semibold text-lg">Historial de Accesos</div>
-                    </a>
-
-                    <a href="{{ route('vigilante.reportes') }}" 
-                       class="bg-green-600 hover:bg-green-700 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">📈</div>
-                        <div class="font-semibold text-lg">Reportes</div>
-                    </a>
-                </div>
-                {{-- 🚨 Incidentes --}}
-                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">
-                    🚨 Incidentes
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                    {{-- Crear incidente (vigilante) --}}
-                    <a href="{{ route('vigilante.incidentes.create') }}" 
-                    class="bg-yellow-500 hover:bg-yellow-600 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">⚠️</div>
-                        <div class="font-semibold text-lg">Registrar Incidente</div>
-                    </a>
-
-                    {{-- Lista de incidentes creados por este vigilante --}}
-                    <a href="{{ route('vigilante.incidentes.index') }}"
-                    class="bg-gray-700 hover:bg-gray-800 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">📋</div>
-                        <div class="font-semibold text-lg">Mis Incidentes</div>
-                    </a>
-
-
-                </div>
-                {{-- 🚗 Accesos de vehículos --}}
-                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">
-                    🚗 Accesos de Vehículos
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <a href="{{ route('vehiculos.entrada') }}" 
-                    class="bg-blue-500 hover:bg-blue-600 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">🚘</div>
-                        <div class="font-semibold text-lg">Registrar Entrada Vehículo</div>
-                    </a>
-
-                    <a href="{{ route('vehiculos.salida') }}" 
-                    class="bg-red-500 hover:bg-red-600 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">🚗</div>
-                        <div class="font-semibold text-lg">Registrar Salida Vehículo</div>
-                    </a>
-
-                    <a href="{{ route('vehiculos.historial') }}"
-                    class="bg-gray-600 hover:bg-gray-700 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">📋</div>
-                        <div class="font-semibold text-lg">Historial Vehículos</div>
-                    </a>
-
-                    <a href="{{ route('vehiculos.reportes') }}" 
-                    class="bg-green-500 hover:bg-green-600 text-white p-6 rounded-2xl shadow-md text-center transition transform hover:scale-105">
-                        <div class="text-4xl mb-2">📊</div>
-                        <div class="font-semibold text-lg">Reportes Vehículos</div>
-                    </a>
-                </div>
-
+                <a href="{{ route('vigilante.salidas') }}"
+                    class="block w-full bg-indigo-400 hover:bg-indigo-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">🚶‍♂️</div>
+                    <div class="font-medium text-base">Salida</div>
+                </a>
             </div>
+
+            {{-- 🚨 Incidentes --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                🚨 Incidentes
+            </h3>
+
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('vigilante.incidentes.create') }}"
+                    class="block w-full bg-violet-400 hover:bg-violet-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">⚠️</div>
+                    <div class="font-medium text-base">Registrar</div>
+                </a>
+
+                <a href="{{ route('vigilante.incidentes.index') }}"
+                    class="block w-full bg-blue-400 hover:bg-blue-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📋</div>
+                    <div class="font-medium text-base">Mis Incidentes</div>
+                </a>
+            </div>
+
+            {{-- 🚗 Vehículos --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                🚗 Accesos de Vehículos
+            </h3>
+
+            <div class="space-y-3">
+                <a href="{{ route('vehiculos.entrada') }}"
+                    class="block w-full bg-sky-300 hover:bg-sky-400 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">🚘</div>
+                    <div class="font-medium text-base">Entrada</div>
+                </a>
+
+                <a href="{{ route('vehiculos.salida') }}"
+                    class="block w-full bg-indigo-300 hover:bg-indigo-400 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">🚗</div>
+                    <div class="font-medium text-base">Salida</div>
+                </a>
+            </div>
+
+            {{-- 📜 Personas --}}
+            <h3 class="text-lg font-bold text-gray-800 mt-8 mb-2 border-b pb-1">
+                📜 Historial y Reportes de Personas
+            </h3>
+
+            <div class="space-y-3 mb-5">
+                <a href="{{ route('vigilante.historial') }}"
+                    class="block w-full bg-cyan-400 hover:bg-cyan-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📜</div>
+                    <div class="font-medium text-base">Historial</div>
+                </a>
+
+                <a href="{{ route('vigilante.reportes') }}"
+                    class="block w-full bg-teal-400 hover:bg-teal-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📈</div>
+                    <div class="font-medium text-base">Reportes</div>
+                </a>
+            </div>
+
+            {{-- 📋 Vehículos --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                📋 Historial y Reportes de Vehículos
+            </h3>
+
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('vigilante.vehiculos-accesos') }}"
+                    class="block w-full bg-cyan-300 hover:bg-cyan-400 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📋</div>
+                    <div class="font-medium text-base">Historial</div>
+                </a>
+
+                <a href="{{ route('vehiculos.reportes') }}"
+                    class="block w-full bg-teal-300 hover:bg-teal-400 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📊</div>
+                    <div class="font-medium text-base">Reportes</div>
+                </a>
+            </div>
+
+        </aside>
+        <main class="flex-1 p-8">
+         {{-- HEADER PARA TITULOS DE CADA PÁGINA --}}
+     @hasSection('header')
+        <div class="mb-6">
+            @yield('header')
         </div>
+     @endif
+
+        <!-- ===== contenido dela parte derecha ===== -->
+        {{-- Mostrar mensaje SOLO si no hay contenido --}}
+            @hasSection('contenido')
+            @yield('contenido')
+        @else
+        <div class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            👮 Bienvenido al Panel de Control del Vigilante
+        </div>
+        @endif
+
+        </main>
+
     </div>
 </x-app-layout>

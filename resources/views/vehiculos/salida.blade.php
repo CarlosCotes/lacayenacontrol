@@ -1,60 +1,67 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold text-gray-800">Registrar Salida de Vehículo</h2>
-    </x-slot>
+@extends('vigilante.index')
 
-    <div class="py-6">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
-                {{-- Mensajes de éxito o error --}}
-                @if(session('success'))
-                    <div class="mb-4 text-green-600 font-semibold">
-                        ✅ {{ session('success') }}
-                    </div>
-                @endif
+@section('header')
+    <h2 class="text-xl font-semibold text-gray-800">Registrar Salida de Vehículo</h2>
+@endsection
 
-                @if(session('error'))
-                    <div class="mb-4 text-red-600 font-semibold">
-                        ⚠️ {{ session('error') }}
-                    </div>
-                @endif
+@section('contenido')
 
-                {{-- Formulario de salida --}}
-                <form action="{{ route('vehiculos.storeAcceso') }}" method="POST" class="space-y-4">
-                    @csrf
-                    <input type="hidden" name="tipo" value="salida">
-
-                    <div>
-                        <label class="block font-semibold mb-1">Placa del vehículo</label>
-                        <input 
-                            type="text" 
-                            name="placa" 
-                            class="w-full border rounded p-2 focus:ring-2 focus:ring-blue-400" 
-                            placeholder="Ejemplo: ABC123"
-                            required>
-                    </div>
-
-                    <div>
-                        <label class="block font-semibold mb-1">Observación (opcional)</label>
-                        <textarea 
-                            name="observacion" 
-                            class="w-full border rounded p-2 focus:ring-2 focus:ring-blue-400" 
-                            rows="3" 
-                            placeholder="Detalles adicionales..."></textarea>
-                    </div>
-
-                    <button 
-                        type="submit" 
-                        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
-                        Registrar salida
-                    </button>
-                </form>
-
-                <a href="{{ route('vigilante.dashboard') }}" 
-                   class="mt-4 inline-block bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
-                    ← Volver al inicio
-                </a>
-            </div>
+    {{-- Mensaje de éxito --}}
+    @if(session('success'))
+        <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
+            {{ session('success') }}
         </div>
-    </div>
-</x-app-layout>
+    @endif
+
+    {{-- Mensaje de error --}}
+    @if(session('error'))
+        <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    {{-- Errores de validación --}}
+    @if($errors->any())
+        <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
+            <ul class="list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+
+    <form action="{{ route('vehiculos.storeSalida') }}" method="POST" class="space-y-4">
+        @csrf
+
+        {{-- Establecer tipo SALIDA --}}
+        <input type="hidden" name="tipo" value="salida">
+
+        <div>
+            <label class="block font-semibold mb-1">Placa del vehículo</label>
+            <input 
+                type="text" 
+                name="placa" 
+                class="w-full border rounded p-2 focus:ring-2 focus:ring-sky-400" 
+                required
+            >
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Observación (opcional)</label>
+            <input 
+                type="text" 
+                name="observacion" 
+                class="w-full border rounded p-2 focus:ring-2 focus:ring-sky-400"
+            >
+        </div>
+
+        <button 
+            type="submit" 
+            class="block w-full mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl shadow-md text-center transition-all duration-300 font-semibold">
+            Registrar Salida
+        </button>
+    </form>
+
+@endsection

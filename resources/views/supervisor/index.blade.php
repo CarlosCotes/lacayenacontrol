@@ -1,4 +1,52 @@
 <x-app-layout>
-    <h1 class="text-2xl font-bold">Panel del Supervisor</h1>
-    <p>Bienvenido, {{ Auth::user()->name }}</p>
+    <div class="flex min-h-screen bg-gray-50">
+
+        <!-- ===== Menu izquierdo ===== -->
+        <aside class="w-64 bg-white shadow-md border-r border-gray-200 p-4 overflow-y-auto">
+
+            <h2 class="font-bold text-2xl text-gray-800 mb-6">
+                {{ __('Panel del Supervisor') }}
+            </h2>
+
+            {{-- 📝 Solicitudes --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                📝 Solicitudes
+            </h3>
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('supervisor.solicitudes.index') }}"
+                   class="block w-full bg-teal-400 hover:bg-teal-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📝</div>
+                    <div class="font-medium text-base">Crear Solicitud</div>
+                </a>
+                <a href="{{ route('supervisor.solicitudes.historial') }}"
+                   class="block w-full bg-teal-400 hover:bg-teal-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📝</div>
+                    <div class="font-medium text-base">Ver Historial</div>
+                </a>
+            </div>
+
+        </aside>
+
+        <!-- ===== Contenido derecho ===== -->
+        <main class="flex-1 p-8">
+
+            {{-- HEADER PARA TITULOS DE CADA PÁGINA --}}
+            @hasSection('header')
+                <div class="mb-6">
+                    @yield('header')
+                </div>
+            @endif
+
+            {{-- CONTENIDO --}}
+            @hasSection('contenido')
+                @yield('contenido')
+            @else
+                <div class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    👮 Bienvenido al Panel del Supervisor
+                </div>
+            @endif
+
+        </main>
+
+    </div>
 </x-app-layout>

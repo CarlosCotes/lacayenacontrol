@@ -1,13 +1,12 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+@extends('vigilante.index')
+
+@section('header')
+        <h2 class="font-semibold text-xl text-gray-800">
             {{ __('Registrar Entrada de Usuario') }}
         </h2>
-    </x-slot>
+    @endsection
 
-    <div class="py-6">
-        <div class="max-w-md mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
+    @section('contenido')
 
                 {{-- Mensaje de éxito --}}
                 @if(session('success'))
@@ -16,7 +15,14 @@
                     </div>
                 @endif
 
-                {{-- Mensajes de error --}}
+                {{-- Mensaje de error  --}}
+                @if(session('error'))
+                    <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                {{-- Mensajes de validación --}}
                 @if($errors->any())
                     <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
                         <ul class="list-disc list-inside">
@@ -36,22 +42,19 @@
                         type="text" 
                         name="documento" 
                         value="{{ old('documento') }}" 
-                        class="w-full border rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-green-400"
+                        class="w-full border rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-sky-400"
                         placeholder="Ingrese documento"
                         required
                     >
 
+                    <!-- Botón Registrar Entrada -->
                     <button 
                         type="submit" 
-                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full">
+                        class="block w-full mt-2 bg-sky-400 hover:bg-sky-500 text-white px-4 py-2 rounded-xl shadow-md text-center transition-all duration-300 font-semibold">
                         Registrar Entrada
                     </button>
                 </form>
 
-                <a href="{{ route('vigilante.dashboard') }}" class="inline-block mt-4 text-blue-600 hover:underline">
-                    ← Volver al inicio
-                </a>
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+    
+
+@endsection

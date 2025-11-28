@@ -1,14 +1,11 @@
-<x-app-layout>
-    <x-slot name="header">
+@extends('vigilante.index')
+@section('header')
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Mis Incidentes') }}
         </h2>
-    </x-slot>
+@endsection
 
-    <div class="py-8">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
-
+@section('contenido')
                 @if(session('success'))
                     <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
                         {{ session('success') }}
@@ -50,11 +47,4 @@
                     </table>
                 </div>
 
-                <a href="{{ route('vigilante.dashboard') }}" class="inline-block mt-4 text-blue-600 hover:underline">
-                    ← Volver al Panel
-                </a>
-
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+@endsection

@@ -3,99 +3,129 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vehiculo;
-use App\Models\VehiculoAcceso;
+use App\Models\VehiculoAcceso; // ← IMPORTACIÓN CORRECTA
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class VehiculoController extends Controller
 {
     /**
-     * Mostrar formulario de registro de acceso
+     * Mostrar formulario de entrada de vehículos
      */
     public function index()
     {
-        
         return view('vehiculos.entrada');
     }
+
+    /**
+     * Mostrar formulario de salida de vehículos
+     */
     public function salida()
     {
         return view('vehiculos.salida');
     }
 
     /**
-     * Registrar entrada o salida del vehículo
+     * Registrar ENTRADA del vehículo
      */
-    public function storeAcceso(Request $request)
+    public function storeEntrada(Request $request)
     {
         $request->validate([
-            'placa' => 'required|string|exists:vehiculos,placa',
-            'tipo' => 'required|in:entrada,salida',
-            'observacion' => 'nullable|string|max:255',
+            'placa' => 'required',
+        ]);
+
+        // Buscar vehículo
+        $vehiculo = Vehiculo::where('placa', $request->placa)->first();
+
+        if (!$vehiculo) {
+            return back()->with('error', 'El vehículo no está registrado.');
+        }
+        $ultimoAcceso = VehiculoAcceso::where('vehiculo_id', $vehiculo->id)
+        ->orderByDesc('id')
+        ->first();
+
+        if ($ultimoAcceso && $ultimoAcceso->tipo === 'entrada' && $ultimoAcceso->hora_salida === null) {
+            return back()->with('error', 'El vehículo ya está dentro. No puede registrar otra entrada.');
+        }
+
+        // Registrar acceso
+        $acceso = VehiculoAcceso::create([
+            'vehiculo_id' => $vehiculo->id,
+            'tipo' => 'entrada',
+            'vigilante_id' => Auth::id(),
+            'hora_entrada' => now(),
+            'empresa_id' => $vehiculo->empresa_id, // opcional según tu diseño
+        ]);
+
+        return view('vehiculos.mostrar', compact('vehiculo', 'acceso'))
+            ->with('success', 'Entrada registrada correctamente.');
+    }
+
+    /**
+     * Registrar SALIDA del vehículo
+     */
+    public function storeSalida(Request $request)
+    {
+        $request->validate([
+            'placa' => 'required',
         ]);
 
         $vehiculo = Vehiculo::where('placa', $request->placa)->first();
 
-        // Verificar si hay una entrada activa sin salida
-        $accesoActivo = VehiculoAcceso::where('vehiculo_id', $vehiculo->id)
-            ->whereNull('hora_salida')
-            ->first();
-
-        if ($request->tipo === 'entrada' && $accesoActivo) {
-            return back()->with('error', 'El vehículo ya se encuentra dentro.');
+        if (!$vehiculo) {
+            return back()->with('error', 'El vehículo no está registrado.');
         }
+        
+        $ultimoAcceso = VehiculoAcceso::where('vehiculo_id', $vehiculo->id)
+        ->orderByDesc('id')
+        ->first();
 
-        if ($request->tipo === 'salida' && !$accesoActivo) {
-            return back()->with('error', 'No hay una entrada activa para registrar la salida.');
+        if (!$ultimoAcceso || $ultimoAcceso->tipo !== 'entrada' || $ultimoAcceso->hora_salida !== null) {
+            return back()->with('error', 'No se puede registrar salida. El vehículo no tiene entrada pendiente.');
         }
-
-        // Crear o actualizar registro
-        if ($request->tipo === 'entrada') {
-        VehiculoAcceso::create([
+        // Registrar salida
+        $acceso = VehiculoAcceso::create([
             'vehiculo_id' => $vehiculo->id,
+            'tipo' => 'salida',
             'vigilante_id' => Auth::id(),
-            'empresa_id' => $vehiculo->empresa_id ?? Auth::user()->empresa_id, // prioridad al vehículo
-            'tipo' => 'entrada',
-            'hora_entrada' => now(),
-            'observacion' => $request->observacion,
+            'hora_salida' => now(),
+            'empresa_id' => $vehiculo->empresa_id,
         ]);
-        } else {
-            $accesoActivo->update([
-                'hora_salida' => now(),
-                'tipo' => 'salida',
-                'observacion' => $request->observacion,
-            ]);
-        }
 
-        return back()->with('success', 'Acceso registrado correctamente.');
+        return view('vehiculos.mostrar', compact('vehiculo', 'acceso'))
+            ->with('success', 'Salida registrada correctamente.');
     }
 
     /**
-     * Historial de accesos de vehículos
+     * Historial de entradas y salidas por roles
      */
     public function historial()
     {
         $user = Auth::user();
-
+    
         $query = VehiculoAcceso::with(['vehiculo', 'vigilante', 'empresa']);
-
-        if ($user->role_id == 3) { // Funcionario
+    
+        if ($user->role_id == 3) {
             $query->where('empresa_id', $user->empresa_id);
-        } elseif ($user->role_id == 5) { // Vigilante
-            $query->where('vigilante_id', $user->id);
+            $accesos = $query->orderByDesc('hora_entrada')->paginate(10);
+            return view('funcionario.vehiculos-accesos', compact('accesos'));
         }
-
-        $accesos = $query->orderByDesc('hora_entrada')->get();
-
-        return view('vehiculos.historial', compact('accesos'));
+    
+        if ($user->role_id == 5) {
+            $query->where('vigilante_id', $user->id);
+            $accesos = $query->orderByDesc('hora_entrada')->paginate(10);
+            return view('vigilante.vehiculos-accesos', compact('accesos')); 
+        }
+    
+        abort(403, 'Acceso no autorizado');
     }
 
-
     /**
-     * Reportes de accesos vehiculares
+     * Reportes filtrados
      */
     public function reportes(Request $request)
     {
-        $empresaId = Auth::user()->empresa_id ?? null;
+        $empresaId = Auth::user()->empresa_id;
 
         $query = VehiculoAcceso::with(['vehiculo', 'vigilante'])
             ->when($empresaId, fn($q) => $q->where('empresa_id', $empresaId));
@@ -115,7 +145,6 @@ class VehiculoController extends Controller
 
         $accesos = $query->orderByDesc('hora_entrada')->paginate(15);
 
-        // vista general: resources/views/vehiculos/reportes.blade.php
         return view('vehiculos.reportes', compact('accesos'));
     }
 }

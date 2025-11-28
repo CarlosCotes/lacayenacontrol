@@ -1,72 +1,99 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Panel del Funcionario') }}
-        </h2>
-    </x-slot>
+    <div class="flex min-h-screen bg-gray-50">
 
-    <div class="py-10 max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- ===== Menu izquierdo ===== -->
+        <aside class="w-64 bg-white shadow-md border-r border-gray-200 p-4 overflow-y-auto">
 
-            <!-- 🔹 Gestión de Empleados -->
-            <a href="{{ route('funcionario.trabajadores') }}" 
-               class="bg-white shadow-sm rounded-2xl p-6 hover:shadow-lg transition transform hover:-translate-y-1 focus:ring-2 focus:ring-blue-300 focus:outline-none">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Gestión de Empleados</h3>
-                        <p class="text-gray-500 mt-1 text-sm">Ver, editar o registrar empleados</p>
-                    </div>
-                    <div class="text-blue-600 text-3xl">👥</div>
+            <h2 class="font-bold text-2xl text-gray-800 mb-6">
+                {{ __('Panel del Funcionario') }}
+            </h2>
+
+            {{-- 👥 Empleados --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                👥 Gestión de Empleados
+            </h3>
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('funcionario.trabajadores') }}"
+                    class="block w-full bg-indigo-400 hover:bg-indigo-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">👥</div>
+                    <div class="font-medium text-base">Empleados</div>
+                </a>
+            </div>
+
+            {{-- 📋 Accesos --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                📋 Historial de Accesos
+            </h3>
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('funcionario.historial') }}"
+                    class="block w-full bg-sky-400 hover:bg-sky-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📋</div>
+                    <div class="font-medium text-base">Personas</div>
+                </a>
+
+                <a href="{{ route('funcionario.reportes') }}"
+                    class="block w-full bg-violet-400 hover:bg-violet-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📊</div>
+                    <div class="font-medium text-base">Reportes</div>
+                </a>
+            </div>
+
+            {{-- 🚗 Vehículos --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                🚗 Accesos Vehiculares
+            </h3>
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('funcionario.vehiculos-accesos') }}"
+                    class="block w-full bg-cyan-400 hover:bg-cyan-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">🚗</div>
+                    <div class="font-medium text-base">Historial</div>
+                </a>
+            </div>
+
+            {{-- ⚠️ Alertas --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                ⚠️ Alertas e Incidencias
+            </h3>
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('funcionario.incidentes.index') }}"
+                    class="block w-full bg-teal-400 hover:bg-teal-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">⚠️</div>
+                    <div class="font-medium text-base">Incidentes</div>
+                </a>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                📝 Solicitudes
+            </h3>
+
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('funcionario.solicitudes.create') }}"
+                    class="block w-full bg-teal-400 hover:bg-teal-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📝</div>
+                    <div class="font-medium text-base">Solicitar Nuevo Empleado</div>
+                </a>
+            </div>
+        </aside>
+
+        <!-- ===== Contenido derecho ===== -->
+        <main class="flex-1 p-8">
+
+            {{-- HEADER PARA TITULOS DE CADA PÁGINA --}}
+            @hasSection('header')
+                <div class="mb-6">
+                    @yield('header')
                 </div>
-            </a>
+            @endif
 
-            <!-- 🔹 Historial de Accesos -->
-            <a href="{{ route('funcionario.historial') }}" 
-               class="bg-white shadow-sm rounded-2xl p-6 hover:shadow-lg transition transform hover:-translate-y-1 focus:ring-2 focus:ring-green-300 focus:outline-none">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Historial de Accesos</h3>
-                        <p class="text-gray-500 mt-1 text-sm">Consultar accesos del personal</p>
-                    </div>
-                    <div class="text-green-600 text-3xl">📋</div>
+            {{-- CONTENIDO --}}
+            @hasSection('contenido')
+                @yield('contenido')
+            @else
+                <div class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    👮 Bienvenido al Panel del Funcionario
                 </div>
-            </a>
+            @endif
 
-            <!-- 🔹 Reportes y Estadísticas -->
-            <a href="{{ route('funcionario.reportes') }}" 
-               class="bg-white shadow-sm rounded-2xl p-6 hover:shadow-lg transition transform hover:-translate-y-1 focus:ring-2 focus:ring-purple-300 focus:outline-none">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Reportes y Estadísticas</h3>
-                        <p class="text-gray-500 mt-1 text-sm">Filtra y exporta en PDF o Excel</p>
-                    </div>
-                    <div class="text-purple-600 text-3xl">📊</div>
-                </div>
-            </a>
+        </main>
 
-            <!-- 🔹 Accesos de Vehículos -->
-            <a href="{{ route('funcionario.vehiculos.historial') }}"
-               class="bg-white shadow-sm rounded-2xl p-6 hover:shadow-lg transition transform hover:-translate-y-1 focus:ring-2 focus:ring-yellow-300 focus:outline-none">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Accesos de Vehículos</h3>
-                        <p class="text-gray-500 mt-1 text-sm">Consultar entradas y salidas vehiculares</p>
-                    </div>
-                    <div class="text-yellow-600 text-3xl">🚗</div>
-                </div>
-            </a>
-
-            <!-- 🔹 Alertas e Incidencias -->
-            <a href="{{ route('funcionario.incidentes.index') }}" 
-               class="bg-white shadow-sm rounded-2xl p-6 hover:shadow-lg transition transform hover:-translate-y-1 focus:ring-2 focus:ring-red-300 focus:outline-none">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Alertas e Incidencias</h3>
-                        <p class="text-gray-500 mt-1 text-sm">Revisar notificaciones del personal de seguridad</p>
-                    </div>
-                    <div class="text-red-600 text-3xl">⚠️</div>
-                </div>
-            </a>
-        </div>
     </div>
 </x-app-layout>

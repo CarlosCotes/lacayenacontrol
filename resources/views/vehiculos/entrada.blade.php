@@ -1,35 +1,70 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold text-gray-800">Registrar Acceso Vehículo</h2>
-    </x-slot>
+@extends('vigilante.index')
 
-    <div class="py-6">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
-                @if(session('success'))
-                    <div class="mb-4 text-green-600">{{ session('success') }}</div>
-                @endif
+@section('header')
+    <h2 class="text-xl font-semibold text-gray-800">Registrar Entrada Vehículo</h2>
+@endsection
 
-                <form action="{{ route('vehiculos.storeAcceso') }}" method="POST" class="space-y-4">
-                    @csrf
-                    <div>
-                        <label class="block font-semibold mb-1">Placa del vehículo</label>
-                        <input type="text" name="placa" class="w-full border rounded p-2" required>
-                    </div>
-                    <div>
-                        <label class="block font-semibold mb-1">Tipo de registro</label>
-                        <select name="tipo" class="w-full border rounded p-2" required>
-                            <option value="entrada">Entrada</option>
-                            <option value="salida">Salida</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Registrar</button>
-                </form>
+@section('contenido')
 
-                <a href="{{ route('vigilante.dashboard') }}" class="mt-4 inline-block bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
-                    ← Volver al inicio
-                </a>
-            </div>
+    {{-- Éxito --}}
+    @if(session('success'))
+        <div class="bg-green-100 text-green-800 p-3 rounded mb-4">{{ session('success') }}</div>
+    @endif
+
+    {{-- Error --}}
+    @if(session('error'))
+        <div class="bg-red-100 text-red-800 p-3 rounded mb-4">{{ session('error') }}</div>
+    @endif
+
+    {{-- Errores --}}
+    @if($errors->any())
+        <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
+            <ul class="list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
+    @endif
+
+    <form action="{{ route('vehiculos.storeEntrada') }}" method="POST" class="space-y-4">
+        @csrf
+
+        <div>
+            <label class="block font-semibold mb-1">Placa del vehículo</label>
+            <input 
+                type="text" 
+                name="placa" 
+                class="w-full border rounded p-2 focus:ring-2 focus:ring-sky-400" 
+                required
+            >
+        </div>
+
+        <button 
+            type="submit" 
+            class="block w-full mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl shadow-md text-center transition-all duration-300 font-semibold">
+            Registrar Entrada
+        </button>
+    </form>
+
+    {{-- Información del vehículo luego de registrar el acceso --}}
+@if(session('vehiculo_info'))
+    @php $v = session('vehiculo_info'); @endphp
+
+    <div class="bg-blue-100 text-blue-900 p-4 rounded-lg shadow mb-4">
+        <h3 class="font-bold text-lg mb-2">
+            Información del Vehículo ({{ session('tipo') }})
+        </h3>
+
+        <ul class="space-y-1">
+            <li><strong>Placa:</strong> {{ $v->placa }}</li>
+            <li><strong>Marca:</strong> {{ $v->marca ?? 'N/D' }}</li>
+            <li><strong>Modelo:</strong> {{ $v->modelo ?? 'N/D' }}</li>
+            <li><strong>Color:</strong> {{ $v->color ?? 'N/D' }}</li>
+            <li><strong>Propietario:</strong> {{ $v->propietario ?? 'N/D' }}</li>
+            <li><strong>Empresa:</strong> {{ $v->empresa->nombre ?? 'N/D' }}</li>
+        </ul>
     </div>
-</x-app-layout>
+@endif
+
+@endsection
