@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Acceso;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\PermisoTemporal;
 
 class VigilanteController extends Controller
 {
@@ -25,40 +26,67 @@ class VigilanteController extends Controller
 // Registrar entrada de usuario
 public function storeEntrada(Request $request)
 {
-    $request->validate([
-        'documento' => 'required|string',
-    ]);
-
-    $usuario = User::where('documento', $request->documento)->first();
-
-    if (!$usuario) {
-        return redirect()->back()->with('error', '❌ Usuario no encontrado.');
+    {
+        $request->validate(['documento' => 'required|string']);
+    
+        $usuario = User::where('documento', $request->documento)->first();
+        $permiso  = PermisoTemporal::where('documento_visitante', $request->documento)->first();
+    
+        if (!$usuario && !$permiso) {
+            return back()->with('error', '❌ No existe un usuario ni un permiso temporal con ese documento.');
+        }
+    
+        // VISITANTE (permiso)
+        if ($permiso) {
+            $entradaActiva = Acceso::where('permiso_id', $permiso->id)
+                ->whereNull('hora_salida')
+                ->first();
+    
+            if ($entradaActiva) {
+                return back()->with('error', '⚠️ Este visitante ya tiene una entrada activa.');
+            }
+    
+            $acceso = Acceso::create([
+                'permiso_id'   => $permiso->id,
+                'user_id'      => null,
+                'vigilante_id' => Auth::id(),
+                'hora_entrada' => now(),
+                'tipo'         => 'entrada',
+                'origen'       => 'permiso',
+            ]);
+    
+            return redirect()->route('vigilante.mostrar', $acceso->id)
+                ->with('success', 'Entrada registrada correctamente (PERMISO TEMPORAL).');
+        }
+    
+        // USUARIO
+        if ($usuario) {
+            if ($usuario->estado !== 'activo') {
+                return back()->with('error', '⚠️ El usuario está inactivo.');
+            }
+    
+            $entradaActiva = Acceso::where('user_id', $usuario->id)
+                ->whereNull('hora_salida')
+                ->first();
+    
+            if ($entradaActiva) {
+                return back()->with('error', '⚠️ Este usuario ya tiene una entrada activa.');
+            }
+    
+            $acceso = Acceso::create([
+                'user_id'      => $usuario->id,
+                'permiso_id'   => null,
+                'vigilante_id' => Auth::id(),
+                'hora_entrada' => now(),
+                'tipo'         => 'entrada',
+                'origen'       => 'user',
+            ]);
+    
+            return redirect()->route('vigilante.mostrar', $acceso->id)
+                ->with('success', 'Entrada registrada correctamente (USUARIO).');
+        }
     }
-
-    if ($usuario->estado !== 'activo') {
-        return redirect()->back()->with('error', '⚠️ El usuario está inactivo y no puede registrar entrada.');
-    }
-
-    // Evitar doble entrada: si ya tiene una entrada sin salida, no crear otra
-    $entradaActiva = Acceso::where('user_id', $usuario->id)
-        ->whereNull('hora_salida')
-        ->first();
-
-    if ($entradaActiva) {
-        return redirect()->back()->with('error', 'Este usuario ya tiene una entrada activa y no ha registrado salida.');
-    }
-
-    // Crear y almacenar el objeto creado en $acceso (útil para redirecciones)
-    $acceso = Acceso::create([
-        'user_id' => $usuario->id,
-        'vigilante_id' => Auth::id(),
-        'hora_entrada' => now(),
-        'tipo' => 'entrada',
-    ]);
-
-    // Redirigir a la vista de detalle del acceso (o donde prefieras)
-    return redirect()->route('vigilante.mostrar', $acceso->id)
-        ->with('success', 'Entrada registrada correctamente.');
+    
 }
 
 
@@ -71,39 +99,54 @@ public function storeEntrada(Request $request)
 // Registrar salida de usuario
 public function storeSalida(Request $request)
 {
-    $request->validate([
-        'documento' => 'required|exists:users,documento',
-    ]);
+    $request->validate(['documento' => 'required|string']);
 
     $usuario = User::where('documento', $request->documento)->first();
+    $permiso  = PermisoTemporal::where('documento_visitante', $request->documento)->first();
 
-    if (!$usuario) {
-        return redirect()->back()->withErrors(['documento' => 'Usuario no encontrado']);
+    if ($permiso) {
+        $ultimoAcceso = Acceso::where('permiso_id', $permiso->id)
+            ->whereNull('hora_salida')
+            ->latest('hora_entrada')
+            ->first();
+
+        if (!$ultimoAcceso) {
+            return back()->with('error', '⚠️ No hay una entrada activa para este visitante.');
+        }
+
+        $ultimoAcceso->update([
+            'hora_salida'  => now(),
+            'tipo'         => 'salida',
+            'vigilante_id' => Auth::id(),
+        ]);
+
+        return redirect()->route('vigilante.mostrar', $ultimoAcceso->id)
+            ->with('success', 'Salida registrada correctamente (PERMISO TEMPORAL).');
     }
 
-    // Buscar la última entrada pendiente (sin hora_salida) — esto es lo importante
-    $ultimoAcceso = Acceso::where('user_id', $usuario->id)
-        ->whereNull('hora_salida')
-        ->latest('hora_entrada')
-        ->first();
+    if ($usuario) {
+        $ultimoAcceso = Acceso::where('user_id', $usuario->id)
+            ->whereNull('hora_salida')
+            ->latest('hora_entrada')
+            ->first();
 
-    if (!$ultimoAcceso) {
-        // Mensaje claro si no hay entrada pendiente
-        return redirect()->back()->withErrors(['documento' => 'El usuario no tiene una entrada registrada, no se puede registrar salida.']);
+        if (!$ultimoAcceso) {
+            return back()->with('error', '⚠️ No hay una entrada activa para este usuario.');
+        }
+
+        $ultimoAcceso->update([
+            'hora_salida'  => now(),
+            'tipo'         => 'salida',
+            'vigilante_id' => Auth::id(),
+        ]);
+
+        return redirect()->route('vigilante.mostrar', $ultimoAcceso->id)
+            ->with('success', 'Salida registrada correctamente (USUARIO).');
     }
 
-    // Actualizamos el registro encontrado (no creamos uno nuevo)
-    $ultimoAcceso->update([
-        'hora_salida' => now(),
-        'tipo' => 'salida',
-        'vigilante_id' => Auth::id(),
-    ]);
+    return back()->with('error', '❌ No se encontró registro para registrar salida.');
 
-    return redirect()->route('vigilante.mostrar', $ultimoAcceso->id)
-        ->with('success', 'Salida registrada correctamente.');
 }
-
-
     // Historial completo de accesos
     public function historial()
     {
@@ -172,10 +215,37 @@ public function storeSalida(Request $request)
     public function mostrar($id)
     {
         // Buscar el acceso con sus relaciones
-        $acceso = Acceso::with(['user', 'vigilante'])
-            ->findOrFail($id);
+        $acceso = Acceso::findOrFail($id);
+
+        // Intentamos encontrar un usuario con user_id
+        $usuario = null;
+        $permiso  = null;
+        $registroTipo = 'user'; // por defecto
     
-        return view('vigilante.mostrar', compact('acceso'));
+        if ($acceso->user_id) {
+            $usuario = User::find($acceso->user_id);
+            // Si no existe usuario, tal vez el user_id corresponde a un permiso temporal
+            if (!$usuario) {
+                $permiso = PermisoTemporal::find($acceso->user_id);
+                if ($permiso) {
+                    $registroTipo = 'permiso';
+                }
+            } else {
+                // si existe usuario, pero podría igualmente corresponder también a un permiso (caso raro)
+                // preferimos que sea usuario cuando ambos existen; si quieres preferir permiso,
+                // cambia la lógica aquí.
+                $registroTipo = 'user';
+            }
+        } else {
+            // Si user_id está vacío, pero tienes permiso_id en otro campo (no en tu caso), podrías comprobarlo aquí.
+            $registroTipo = 'user';
+        }
+    
+        // Si no hay usuario y no hay permiso pero el acceso tiene campos propios (documento/nombre),
+        // podríamos usarlos como fallback. Se puede agregar aquí.
+    
+        return view('vigilante.mostrar', compact('acceso', 'usuario', 'permiso', 'registroTipo'));
+    
     }
 
 }

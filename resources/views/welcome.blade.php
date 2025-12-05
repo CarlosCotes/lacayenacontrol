@@ -15,7 +15,7 @@
     <!-- Logo -->
     <div class="mb-8 animate-fadeIn">
         <!-- Reemplaza 'logo.png' con tu logo real -->
-        <img src="{{ asset('imagenes') }}" alt="La Cayena Control Logo" class="w-32 h-32 object-contain">
+        <img src="{{ asset('logo/logo.png') }}" alt="La Cayena Control Logo" class="w-32 h-32 object-contain">
     </div>
 
     <!-- Título principal -->

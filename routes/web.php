@@ -9,8 +9,8 @@ use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\IncidenteController;
 use App\Http\Controllers\SolicitudEmpleadoController;
-
-
+use App\Http\Controllers\PermisoTemporalController;
+use App\Http\Controllers\VehiculoSolicitudController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -51,29 +51,18 @@ Route::middleware(['auth', 'role:1'])->group(function () {
 
 // 🔹 SUPERVISOR
 Route::middleware(['auth', 'role:2'])->group(function () {
-    Route::get('/supervisor/dashboard', function () {
-        return view('supervisor.index');
-    })->name('supervisor.dashboard');
+    Route::get('/supervisor/dashboard', function () {return view('supervisor.index');})->name('supervisor.dashboard');
     Route::get('/supervisor/reportes', [SupervisorController::class, 'reportes'])->name('supervisor.reportes');
-        // Solicitudes pendientes
-        Route::get('/supervisor/solicitudes', 
-        [SolicitudEmpleadoController::class, 'indexSupervisor']
-    )->name('supervisor.solicitudes.index');
-
-    // Historial
-    Route::get('/supervisor/solicitudes/historial', 
-        [SolicitudEmpleadoController::class, 'historial']
-    )->name('supervisor.solicitudes.historial');
-
-    // Aprobar
-    Route::post('/supervisor/solicitudes/{id}/aprobar', 
-        [SolicitudEmpleadoController::class, 'aprobar']
-    )->name('solicitudes.aprobar');
-
-    // Rechazar
-    Route::post('/supervisor/solicitudes/{id}/rechazar', 
-        [SolicitudEmpleadoController::class, 'rechazar']
-    )->name('solicitudes.rechazar');
+    Route::get('/supervisor/solicitudes', [SolicitudEmpleadoController::class, 'indexSupervisor'])->name('supervisor.solicitudes.index');
+    Route::get('/supervisor/solicitudes/historial', [SolicitudEmpleadoController::class, 'historial'])->name('supervisor.solicitudes.historial');
+    Route::post('/supervisor/solicitudes/{id}/aprobar', [SolicitudEmpleadoController::class, 'aprobar'])->name('solicitudes.aprobar');
+    Route::post('/supervisor/solicitudes/{id}/rechazar', [SolicitudEmpleadoController::class, 'rechazar'])->name('solicitudes.rechazar');
+    Route::get('/supervisor/permisos', [PermisoTemporalController::class, 'pendientes'])->name('supervisor.permisos');
+    Route::post('/supervisor/permisos/{id}/aprobar', [PermisoTemporalController::class, 'aprobar'])->name('supervisor.permisos.aprobar');
+    Route::post('/supervisor/permisos/{id}/rechazar', [PermisoTemporalController::class, 'rechazar'])->name('supervisor.permisos.rechazar');
+    Route::get('/supervisor/vehiculos/solicitudes', [VehiculoSolicitudController::class, 'indexSupervisor'])->name('supervisor.vehiculos.index');
+    Route::post('/supervisor/vehiculos/solicitudes/{id}/aprobar', [VehiculoSolicitudController::class, 'aprobar'])->name('supervisor.vehiculos.aprobar');
+    Route::post('/supervisor/vehiculos/solicitudes/{id}/rechazar', [VehiculoSolicitudController::class, 'rechazar'])->name('supervisor.vehiculos.rechazar');
 
 });
 
@@ -86,12 +75,16 @@ Route::middleware(['auth', 'role:3'])->group(function () {
     Route::get('/funcionario/vehiculos/accesos', [VehiculoController::class, 'historial'])->name('funcionario.vehiculos-accesos');
     Route::get('funcionario/incidentes', [IncidenteController::class, 'index'])->name('funcionario.incidentes.index');
     Route::patch('funcionario/incidentes/{incidente}/estado', [IncidenteController::class, 'updateEstado'])->name('funcionario.incidentes.updateEstado');
-    Route::get('/funcionario/solicitudes/create', [SolicitudEmpleadoController::class, 'create'])
-    ->name('funcionario.solicitudes.create');
+    Route::get('/funcionario/solicitudes/create', [SolicitudEmpleadoController::class, 'create'])->name('funcionario.solicitudes.create');
     Route::post('/funcionario/solicitudes/store', [SolicitudEmpleadoController::class, 'store'])->name('funcionario.solicitudes.store');
-    // Actualizar estado de un incidente
-    Route::patch('funcionario/incidentes/{incidente}/estado', [IncidenteController::class, 'updateEstado'])
-        ->name('funcionario.incidentes.updateEstado');
+    Route::patch('funcionario/incidentes/{incidente}/estado', [IncidenteController::class, 'updateEstado'])->name('funcionario.incidentes.updateEstado');
+    Route::get('/funcionario/permisos', [PermisoTemporalController::class, 'formFuncionario'])->name('funcionario.permisos');
+    Route::post('/funcionario/permisos', [PermisoTemporalController::class, 'store'])->name('funcionario.permisos.store');
+    Route::get('/funcionario/solicitud/crear', [VehiculoSolicitudController::class, 'create'])->name('vehiculos.create');
+    Route::post('/vehiculos/solicitud', [VehiculoSolicitudController::class, 'store'])->name('vehiculos.store');
+    Route::get('/vehiculos/empleados', [VehiculoSolicitudController::class, 'getEmpleadosPorFuncionario'])->name('vehiculos.empleados');
+    
+
 });
 
 // 🔹 VIGILANTE

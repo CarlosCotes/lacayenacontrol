@@ -7,7 +7,18 @@
             <h2 class="font-bold text-2xl text-gray-800 mb-6">
                 {{ __('Panel del Supervisor') }}
             </h2>
+            {{-- 🚗 Vehículos --}}
+            <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
+                🚗 Solicitudes Vehiculares
+            </h3>
 
+            <div class="space-y-3 mb-6">
+                <a href="{{ route('supervisor.vehiculos.index') }}"
+                    class="block w-full bg-orange-400 hover:bg-orange-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">🚗</div>
+                    <div class="font-medium text-base">Revisar Solicitudes Vehiculares</div>
+                </a>
+            </div>
             {{-- 📝 Solicitudes --}}
             <h3 class="text-lg font-bold text-gray-800 mb-2 border-b pb-1">
                 📝 Solicitudes
@@ -16,7 +27,12 @@
                 <a href="{{ route('supervisor.solicitudes.index') }}"
                    class="block w-full bg-teal-400 hover:bg-teal-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
                     <div class="text-2xl">📝</div>
-                    <div class="font-medium text-base">Crear Solicitud</div>
+                    <div class="font-medium text-base">Ver Solicitudes</div>
+                </a>
+                <a href="{{ route('supervisor.permisos') }}"
+                   class="block w-full bg-teal-400 hover:bg-teal-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">
+                    <div class="text-2xl">📝</div>
+                    <div class="font-medium text-base">Ver Solicitudes Temporales</div>
                 </a>
                 <a href="{{ route('supervisor.solicitudes.historial') }}"
                    class="block w-full bg-teal-400 hover:bg-teal-500 text-white p-3 rounded-lg shadow-sm text-center transition duration-150 transform hover:scale-110">

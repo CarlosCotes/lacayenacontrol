@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Acceso extends Model
 {
@@ -11,10 +12,12 @@ class Acceso extends Model
 
     protected $fillable = [
         'user_id',
+        'permiso_id',
         'vigilante_id',
         'hora_entrada',
         'hora_salida',
         'tipo',
+        'origen',
     ];
 
     public function user()
@@ -22,10 +25,13 @@ class Acceso extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relación con el vigilante que registra
+    public function permisoTemporal()
+    {
+        return $this->belongsTo(PermisoTemporal::class, 'permiso_id');
+    }
+
     public function vigilante()
     {
         return $this->belongsTo(User::class, 'vigilante_id');
     }
-
 }
