@@ -30,14 +30,15 @@
     <form action="{{ route('vehiculos.storeEntrada') }}" method="POST" class="space-y-4">
         @csrf
 
-        <div>
+        <div x-data="{ placa: '' }">
             <label class="block font-semibold mb-1">Placa del vehículo</label>
             <input 
                 type="text" 
                 name="placa" 
-                class="w-full border rounded p-2 focus:ring-2 focus:ring-sky-400" 
-                required
+                class="w-full border rounded p-2 focus:ring-2 focus:ring-sky-400"
+                maxlength="10" x-model="placa" required
             >
+            <p class="text-right text-xs text-gray-400 mt-1" x-text="placa.length + '/10'"></p>
         </div>
 
         <button 

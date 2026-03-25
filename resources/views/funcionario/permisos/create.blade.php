@@ -32,19 +32,21 @@
             @csrf
 
             {{-- Visitante --}}
-            <div>
+            <div x-data="{ nombre: '' }">
                 <label class="block font-semibold mb-1">Nombre del Visitante</label>
                 <input type="text" name="nombre_visitante" placeholder="Ej: Luis Gómez"
                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none"
-                       required>
+                       maxlength="50" x-model="nombre" required>
+                <p class="text-right text-xs text-gray-400 mt-1" x-text="nombre.length + '/50'"></p>
             </div>
 
             {{-- Documento --}}
-            <div>
+            <div x-data="{ documento: '' }">
                 <label class="block font-semibold mb-1">Documento</label>
                 <input type="text" name="documento_visitante" placeholder="Número de documento"
                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none"
-                       required>
+                       maxlength="50" x-model="documento" required>
+                <p class="text-right text-xs text-gray-400 mt-1" x-text="documento.length + '/50'"></p>
             </div>
 
             {{-- Fechas --}}

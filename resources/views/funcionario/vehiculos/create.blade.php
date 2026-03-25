@@ -23,25 +23,30 @@
                     @csrf
 
                     <!-- PLACA -->
-                    <div>
+                    <div x-data="{ placa: '' }">
                         <label class="block text-gray-700 font-semibold mb-1">Placa</label>
                         <input type="text" name="placa" 
-                            class="w-full border rounded-lg p-2 focus:ring-indigo-500" required>
+                            class="w-full border rounded-lg p-2 focus:ring-indigo-500"
+                            maxlength="10" x-model="placa" required>
+                        <p class="text-right text-xs text-gray-400 mt-1" x-text="placa.length + '/10'"></p>
                     </div>
 
                     <!-- MARCA -->
-                    <div>
+                    <div x-data="{ marca: '' }">
                         <label class="block text-gray-700 font-semibold mb-1">Marca</label>
                         <input type="text" name="marca" 
-                            class="w-full border rounded-lg p-2 focus:ring-indigo-500" required>
+                            class="w-full border rounded-lg p-2 focus:ring-indigo-500"
+                            maxlength="50" x-model="marca" required>
+                        <p class="text-right text-xs text-gray-400 mt-1" x-text="marca.length + '/50'"></p>
                     </div>
 
                     <!-- MODELO -->
-                    <div>
+                    <div x-data="{ modelo: '' }">
                         <label class="block text-gray-700 font-semibold mb-1">Modelo (Corolla, TXL, i10…)</label>
                         <input type="text" name="modelo" 
                             class="w-full border rounded-lg p-2 focus:ring-indigo-500"
-                            placeholder="Ej: Corolla, TXL, i10" required>
+                            placeholder="Ej: Corolla, TXL, i10" maxlength="50" x-model="modelo" required>
+                        <p class="text-right text-xs text-gray-400 mt-1" x-text="modelo.length + '/50'"></p>
                     </div>
 
                     <!-- TIPO -->
